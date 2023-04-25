@@ -27,27 +27,15 @@ function getWeatherData(city) {
                 .then((data) => {
                     displayCurrentWeather(data, name);
                 })
-                .catch((error) => {
-                    console.error("Error fetching current weather data:", error);
-                });
-
             getForecast(lat, lon)
                 .then((data) => {
                     displayForecast(data);
                 })
-                .catch((error) => {
-                    console.error("Error fetching forecast data:", error);
-                });
-
             addToSearchHistory(name);
-        })
-        .catch((error) => {
-            console.error("Error fetching city coordinates:", error);
         });
 }
-
 function getCurrentWeather(lat, lon, name) {
-    var url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,alerts`;
+    var url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,alerts`;
     return fetch(url).then((response) => response.json());
 }
 
@@ -57,13 +45,7 @@ function getForecast(lat, lon) {
 }
 
 function displayCurrentWeather(data, name) {
-    if (!data.current) {
-        console.error("Current weather data is not available.");
-        return;
-    }
-
     var { dt, temp, humidity, wind_speed, weather } = data.current;
-    temp = data.current.temp;
     var date = new Date(dt * 1000);
     var iconUrl = `https://openweathermap.org/img/wn/${weather[0].icon}.png`;
 
