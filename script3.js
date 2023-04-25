@@ -23,20 +23,13 @@ function getWeatherData(city) {
         .then((data) => {
             var { coord, name } = data;
             var { lat, lon } = coord;
-            getCurrentWeather(lat, lon, name)
+            getCurrentWeatherAndForecast(lat, lon, name)
                 .then((data) => {
                     displayCurrentWeather(data, name);
-                })
-                .catch((error) => {
-                    console.error("Error fetching current weather data:", error);
-                });
-
-            getForecast(lat, lon)
-                .then((data) => {
                     displayForecast(data);
                 })
                 .catch((error) => {
-                    console.error("Error fetching forecast data:", error);
+                    console.error("Error fetching current weather and forecast data:", error);
                 });
 
             addToSearchHistory(name);
@@ -46,13 +39,8 @@ function getWeatherData(city) {
         });
 }
 
-function getCurrentWeather(lat, lon, name) {
-    var url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,alerts`;
-    return fetch(url).then((response) => response.json());
-}
-
-function getForecast(lat, lon) {
-    var url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+function getCurrentWeatherAndForecast(lat, lon, name) {
+    var url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,alerts`;
     return fetch(url).then((response) => response.json());
 }
 
@@ -80,8 +68,7 @@ function displayCurrentWeather(data, name) {
 }
 
 function displayForecast(data) {
-    var { list } = data;
-    var dailyData = list.filter((item) => item.dt_txt.endsWith('12:00:00'));
+    var dailyData = data.daily.slice(1, 6);
 
     forecast.innerHTML = dailyData
         .map((day) => {
@@ -91,18 +78,18 @@ function displayForecast(data) {
                 <div class="weather-card">
                     <h3>${date.toLocaleDateString()}</h3>
                     <img src="${iconUrl}" alt="${day.weather[0].description}">
-                    <p>Temperature: ${day.main.temp}°C</p>
-                    <p>Wind Speed: ${day.wind.speed} m/s</p>
-                    <p>Humidity: ${day.main.humidity}%</p>
-                </div>
-            `;
-        })
-        .join('');
+                    <p>Temperature: ${day.temp.day}°C</p>
+                    <p>Wind Speed: ${day.wind_speed} m/s</p>
+                    <p>Humidity: ${day.humidity}%</p>
+            </div>
+        `;
+    })
+    .join('');
 }
 
 function addToSearchHistory(name) {
-    var button = document.createElement('button');
-    button.textContent = name;
-    button.classList.add('history-item');
-    searchHistory.appendChild(button);
+var button = document.createElement('button');
+button.textContent = name;
+button.classList.add('history-item');
+searchHistory.appendChild(button);
 }
